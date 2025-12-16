@@ -6,7 +6,6 @@ Mantiene toda la funcionalidad MQTT y agrega endpoints HTTP
 import time
 import sys
 import signal
-import json
 from datetime import datetime
 from threading import Thread
 import requests
