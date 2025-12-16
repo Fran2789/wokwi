@@ -8,7 +8,6 @@ import network
 import time
 from machine import PWM
 import urequests as requests
-import json
 from machine import Pin, ADC
 import dht
 
