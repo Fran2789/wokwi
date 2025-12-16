@@ -16,8 +16,6 @@ from flask_cors import CORS
 
 # Módulos originales
 import config
-from src.sensors import SensorManager
-from src.actuators import ActuatorManager
 from src.database import DatabaseManager
 #from src.mqtt_client import MQTTClient
 
@@ -414,4 +412,5 @@ if __name__ == "__main__":
         print(f"\n❌ Error fatal: {e}")
         import traceback
         traceback.print_exc()
+
         sys.exit(1)
