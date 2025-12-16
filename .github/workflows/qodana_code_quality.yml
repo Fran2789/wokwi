@@ -6,6 +6,8 @@ on:
     branches: # Specify your branches here
       - main # The 'main' branch
       - 'releases/*' # The release branches
+    paths-ignore:
+      - 'main.py'
 
 jobs:
   qodana:
@@ -15,14 +17,16 @@ jobs:
       pull-requests: write
       checks: write
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
-          fetch-depth: 0  # a full history is required for pull request analysis
-      - name: 'Qodana Scan'
-        uses: JetBrains/qodana-action@v2025.2
-        with:
-          pr-mode: false
-        env:
-          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1168989398 }}
-          QODANA_ENDPOINT: 'https://qodana.cloud'
+       - uses: actions/checkout@v3
+         with:
+           ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
+           fetch-depth: 0  # a full history is required for pull request analysis
+       - name: 'Install dependencies'
+         run: pip install -r requirements.txt
+       - name: 'Qodana Scan'
+         uses: JetBrains/qodana-action@v2025.2
+         with:
+           pr-mode: false
+         env:
+           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN_1168989398 }}
+           QODANA_ENDPOINT: 'https://qodana.cloud'
