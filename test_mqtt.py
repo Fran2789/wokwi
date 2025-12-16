@@ -11,7 +11,7 @@ client.tls_insecure_set(True)
 
 client.username_pw_set("smarthome", "SmartHome123!")
 
-def on_connect(client, userdata, flags, rc):
+def on_connect(mqtt_client, _userdata, _flags, rc):
     print("🔥 Conectado! Código:", rc)
 
 client.on_connect = on_connect

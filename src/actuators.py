@@ -12,6 +12,7 @@ try:
     import RPi.GPIO as GPIO
     REAL_GPIO = True
 except ImportError:
+    GPIO = None
     REAL_GPIO = False
     print("⚠️ GPIO en modo simulación")
 
@@ -21,6 +22,11 @@ try:
     import board
     REAL_OLED = True
 except ImportError:
+    Image = None
+    ImageDraw = None
+    ImageFont = None
+    adafruit_ssd1306 = None
+    board = None
     REAL_OLED = False
     print("⚠️ OLED en modo simulación")
 
@@ -53,11 +59,11 @@ class LEDController:
             GPIO.output(self.pins["green"], GPIO.HIGH if green else GPIO.LOW)
             GPIO.output(self.pins["blue"], GPIO.HIGH if blue else GPIO.LOW)
         
-        color_name = self._get_color_name()
+        color_name = self.get_color_name()
         print(f"💡 LED: {color_name}")
         return color_name
     
-    def _get_color_name(self):
+    def get_color_name(self):
         """Obtiene el nombre del color actual"""
         r, g, b = self.current_state["red"], self.current_state["green"], self.current_state["blue"]
         
@@ -353,7 +359,7 @@ class ActuatorManager:
         """Obtiene estado de todos los actuadores"""
         return {
             "fan": self.relay.get_state(),
-            "led": self.led._get_color_name(),
+            "led": self.led.get_color_name(),
             "timestamp": datetime.now().isoformat()
         }
     
@@ -385,7 +391,8 @@ class ActuatorManager:
         
         print("\n✅ Prueba completada\n")
     
-    def cleanup(self):
+    @staticmethod
+    def cleanup():
         """Limpia recursos GPIO"""
         if REAL_GPIO:
             GPIO.cleanup()
@@ -396,4 +403,4 @@ class ActuatorManager:
 if __name__ == "__main__":
     manager = ActuatorManager()
     manager.test_all()
-    manager.cleanup()
+    ActuatorManager.cleanup()

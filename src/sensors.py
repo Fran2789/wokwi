@@ -5,18 +5,16 @@ Maneja la lectura de DHT22 (temperatura/humedad) y LDR (luz)
 
 import time
 import random
-from datetime import datetime
 import config
-import os
- 
-from datetime import datetime, timedelta
+
+from datetime import datetime, timedelta, UTC
 
 import pytz
 
 tz = pytz.timezone("America/Panama")
 
 def get_local_hour():
-    return (datetime.utcnow() - timedelta(hours=5)).hour
+    return (datetime.now(UTC) - timedelta(hours=5)).hour
 
 # Intentar importar librerías de hardware real
 try:
@@ -24,6 +22,8 @@ try:
     import adafruit_dht
     REAL_HARDWARE = True
 except ImportError:
+    board = None
+    adafruit_dht = None
     REAL_HARDWARE = False
     print("⚠️ Modo simulación: librerías de hardware no disponibles")
 
@@ -114,7 +114,8 @@ class LDRSensor:
         else:
             print("💡 LDR en modo simulación")
     
-    def read_analog(self):
+    @staticmethod
+    def read_analog():
         """Lee valor analógico del LDR (0-1023 o 0-4095 según ADC)"""
         if REAL_HARDWARE:
             # Leer ADC real (implementar según hardware)
@@ -136,7 +137,8 @@ class LDRSensor:
             
             return base_value
     
-    def analog_to_lux(self, analog_value):
+    @staticmethod
+    def analog_to_lux(analog_value):
         """Convierte valor analógico a aproximación de lux"""
         # Conversión aproximada (calibrar según sensor real)
         # Asumiendo rango 0-1023 -> 0-1000 lux aproximadamente
@@ -146,8 +148,8 @@ class LDRSensor:
     def read(self):
         """Lee nivel de luz en lux"""
         try:
-            analog = self.read_analog()
-            self.light_level = self.analog_to_lux(analog)
+            analog = LDRSensor.read_analog()
+            self.light_level = LDRSensor.analog_to_lux(analog)
             self.last_reading = datetime.now()
             
             return {
@@ -208,7 +210,8 @@ class SensorManager:
         
         return readings
     
-    def check_thresholds(self, readings):
+    @staticmethod
+    def check_thresholds(readings):
         """Verifica si las lecturas exceden umbrales configurados"""
         alerts = []
         
@@ -262,7 +265,8 @@ class SensorManager:
         
         return alerts
     
-    def print_readings(self, readings):
+    @staticmethod
+    def print_readings(readings):
         """Imprime lecturas de forma legible"""
         print("\n" + "-"*50)
         print(f"📊 LECTURAS #{readings['readings_count']}")
@@ -283,10 +287,10 @@ def test_sensors():
     for i in range(5):
         print(f"\n--- Lectura {i+1} ---")
         readings = manager.read_all()
-        manager.print_readings(readings)
+        SensorManager.print_readings(readings)
         
         # Verificar umbrales
-        alerts = manager.check_thresholds(readings)
+        alerts = SensorManager.check_thresholds(readings)
         if alerts:
             print("\n⚠️ ALERTAS DETECTADAS:")
             for alert in alerts:

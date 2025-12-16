@@ -89,9 +89,9 @@ def receive_sensor_data():
             "commands": commands
         }), 200
         
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+    except Exception as exc:
+        print(f"❌ Error: {exc}")
+        return jsonify({"status": "error", "message": str(exc)}), 500
 
 
 @app.route('/command', methods=['GET'])
@@ -123,8 +123,8 @@ def manual_control():
         
         return jsonify({"status": "success", "actuator": actuator, "action": action})
         
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 500
 
 
 @app.route('/status', methods=['GET'])
@@ -206,10 +206,10 @@ class SmartHomeBackend:
             
             print(f"   ✅ Comando ejecutado")
                 
-        except Exception as e:
-            print(f"   ❌ Error procesando comando: {e}")
+        except Exception as exc:
+            print(f"   ❌ Error procesando comando: {exc}")
     
-    def apply_auto_control(self, temperature, humidity, light):
+    def apply_auto_control(self, temperature, humidity, _light):
      """Lógica de control automático - retorna comandos"""
      commands = {}
      
@@ -301,8 +301,8 @@ class SmartHomeBackend:
             else:
                 print(f"⚠️ ThingSpeak error: {response.status_code}")
                 return False
-        except Exception as e:
-            print(f"❌ ThingSpeak error: {e}")
+        except Exception as exc:
+            print(f"❌ ThingSpeak error: {exc}")
             return False
     
     def run_mqtt_mode(self):
@@ -403,7 +403,7 @@ def main():
 
 if __name__ == "__main__":
     # Manejador de señales
-    def signal_handler(sig, frame):
+    def signal_handler(_sig, _frame):
         print("\n\n⚠️ Señal de interrupción recibida")
         sys.exit(0)
     

@@ -82,9 +82,9 @@ def receive_sensor_data():
             "commands": commands
         }), 200
         
-    except Exception as e:
-        print(f"❌ Error HTTP: {e}")
-        return jsonify({"status": "error", "message": str(e)}), 500
+    except Exception as exc:
+        print(f"❌ Error HTTP: {exc}")
+        return jsonify({"status": "error", "message": str(exc)}), 500
 
 
 @app.route('/command', methods=['GET'])
@@ -108,8 +108,8 @@ def manual_control():
         
         return jsonify({"status": "success", "actuator": actuator, "action": action})
         
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    except Exception as exc:
+        return jsonify({"status": "error", "message": str(exc)}), 500
 
 
 @app.route('/status', methods=['GET'])
@@ -189,7 +189,7 @@ class SmartHomeBackend:
         # opcional:
         # self.mqtt_client.tls_insecure_set(False)
     
-    def on_mqtt_connect(self, client, userdata, flags, rc, properties):
+    def on_mqtt_connect(self, _client, _userdata, _flags, rc, _properties):
         """Callback: conexión MQTT establecida"""
         if rc == 0:
             self.mqtt_connected = True
@@ -202,13 +202,13 @@ class SmartHomeBackend:
             self.mqtt_connected = False
             print(f"❌ MQTT: Error de conexión (código {rc})")
     
-    def on_mqtt_disconnect(self, client, userdata, flags, rc, properties):
+    def on_mqtt_disconnect(self, _client, _userdata, _flags, rc, _properties):
         """Callback: desconexión MQTT"""
         self.mqtt_connected = False
         if rc != 0:
             print(f"⚠️ MQTT: Desconexión inesperada")
     
-    def on_mqtt_message(self, client, userdata, msg):
+    def on_mqtt_message(self, _client, _userdata, msg):
         """Callback: mensaje MQTT recibido"""
         try:
             topic = msg.topic
@@ -221,7 +221,7 @@ class SmartHomeBackend:
             # Parsear comando
             try:
                 command = json.loads(payload)
-            except:
+            except json.JSONDecodeError:
                 command = {"action": payload}
             
             # Extraer actuador del topic
@@ -236,8 +236,8 @@ class SmartHomeBackend:
             
             self.execute_command(actuator, action, source="MQTT")
             
-        except Exception as e:
-            print(f"❌ MQTT: Error procesando mensaje: {e}")
+        except Exception as exc:
+            print(f"❌ MQTT: Error procesando mensaje: {exc}")
     
     def connect_mqtt(self):
         """Conecta al broker MQTT"""
@@ -248,8 +248,8 @@ class SmartHomeBackend:
             self.mqtt_client.loop_start()
             time.sleep(2)  # Esperar conexión
             return True
-        except Exception as e:
-            print(f"⚠️ MQTT: No se pudo conectar - {e}")
+        except Exception as exc:
+            print(f"⚠️ MQTT: No se pudo conectar - {exc}")
             print(f"   El sistema funcionará solo con HTTP")
             return False
     
@@ -262,8 +262,8 @@ class SmartHomeBackend:
             payload = json.dumps(data)
             self.mqtt_client.publish(topic, payload, qos=1)
             return True
-        except Exception as e:
-            print(f"⚠️ MQTT: Error publicando - {e}")
+        except Exception as exc:
+            print(f"⚠️ MQTT: Error publicando - {exc}")
             return False
     
     def update_sensor_data(self, temperature, humidity, light):
@@ -413,8 +413,8 @@ class SmartHomeBackend:
                 print(f"   ☁️  ThingSpeak: Actualizado")
                 return True
             return False
-        except Exception as e:
-            print(f"   ⚠️ ThingSpeak: Error - {e}")
+        except Exception as exc:
+            print(f"   ⚠️ ThingSpeak: Error - {exc}")
             return False
     
     def run(self):
@@ -483,7 +483,7 @@ def main():
 
 
 if __name__ == "__main__":
-    def signal_handler(sig, frame):
+    def signal_handler(_sig, _frame):
         sys.exit(0)
     
     signal.signal(signal.SIGINT, signal_handler)
